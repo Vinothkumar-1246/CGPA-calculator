@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Premium SGPA & CGPA Calculator - Calculate semester and cumulative grade point averages.">
+<title>SGPA & CGPA Calculator — Premium Grade Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a1a;--glass:rgba(255,255,255,0.04);--glass-b:rgba(255,255,255,0.08);--glass-h:rgba(255,255,255,0.08);--a1:#7c3aed;--a2:#06b6d4;--ag:linear-gradient(135deg,#7c3aed,#06b6d4);--glow:rgba(124,58,237,0.3);--tp:#f0f0ff;--ts:rgba(240,240,255,0.6);--tm:rgba(240,240,255,0.35);--green:#22c55e;--yellow:#eab308;--red:#ef4444;--r:16px;--rs:10px;--sh:0 8px 32px rgba(0,0,0,0.4);--tr:0.3s cubic-bezier(0.4,0,0.2,1);--f:'Poppins',sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--f);background:var(--bg);color:var(--tp);min-height:100vh;overflow-x:hidden;line-height:1.6}
+.bg-orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.orb1{width:500px;height:500px;background:rgba(124,58,237,0.15);top:-100px;left:-100px}
+.orb2{width:400px;height:400px;background:rgba(6,182,212,0.12);bottom:-50px;right:-50px}
+.orb3{width:300px;height:300px;background:rgba(124,58,237,0.08);top:50%;left:50%;transform:translate(-50%,-50%)}
+.container{max-width:820px;margin:0 auto;padding:36px 20px;position:relative;z-index:1}
+header{text-align:center;margin-bottom:32px}
+.logo-icon{width:52px;height:52px;background:var(--ag);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 30px var(--glow);margin-bottom:12px}
+header h1{font-size:clamp(1.7rem,5vw,2.4rem);font-weight:800;background:var(--ag);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--ts);font-size:.9rem;font-weight:300;margin-top:4px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.03);border-radius:var(--rs);padding:4px;margin-bottom:28px;border:1px solid var(--glass-b)}
+.tab{flex:1;padding:12px 16px;border:none;border-radius:8px;font-family:var(--f);font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--tr);background:transparent;color:var(--ts);text-align:center}
+.tab.active{background:var(--ag);color:#fff;box-shadow:0 4px 20px var(--glow)}
+.tab:not(.active):hover{background:rgba(255,255,255,0.06);color:var(--tp)}
+.tab-panel{display:none;animation:fadeUp .4s ease}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.glass{background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r);padding:24px;backdrop-filter:blur(20px);box-shadow:var(--sh);transition:var(--tr)}
+.summary{margin-bottom:28px;text-align:center;position:relative;overflow:hidden}
+.summary::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ag)}
+.gpa-val{font-size:clamp(3rem,9vw,5rem);font-weight:900;line-height:1.1;margin:16px 0 6px;transition:color .5s;text-shadow:0 0 40px currentColor}
+.gpa-lbl{font-size:.8rem;font-weight:500;text-transform:uppercase;letter-spacing:3px;color:var(--tm);margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{background:rgba(255,255,255,0.03);border-radius:var(--rs);padding:14px 8px;border:1px solid rgba(255,255,255,0.05);text-align:center}
+.stat b{display:block;font-size:1.3rem;font-weight:700}
+.stat span{font-size:.65rem;color:var(--tm);text-transform:uppercase;letter-spacing:1.5px}
+
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:1.05rem;font-weight:600}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:.82rem;font-weight:600;cursor:pointer;transition:var(--tr);outline:none}
+.btn-p{background:var(--ag);color:#fff;box-shadow:0 4px 20px var(--glow)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--glow)}
+.btn-d{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-d:hover{background:rgba(239,68,68,0.25)}
+.btn-g{background:rgba(255,255,255,0.05);color:var(--ts);border:1px solid var(--glass-b)}
+.btn-g:hover{background:rgba(255,255,255,0.1);color:var(--tp)}
+
+.row-list{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;gap:10px;align-items:end;padding:16px;background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r);transition:var(--tr);animation:slideIn .4s ease}
+.row:hover{background:var(--glass-h);border-color:rgba(124,58,237,0.2)}
+.row.removing{animation:slideOut .35s ease forwards}
+.sgpa-row{grid-template-columns:1.5fr .8fr 1fr .7fr auto}
+.gp-readonly{background:rgba(124,58,237,0.12)!important;border-color:rgba(124,58,237,0.25)!important;font-weight:700;text-align:center;cursor:default}
+.cgpa-row{grid-template-columns:1.5fr 1fr 1fr auto}
+
+@keyframes slideIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes slideOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-10px) scale(.95)}}
+
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm)}
+.fld input,.fld select{width:100%;padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tp);font-family:var(--f);font-size:.85rem;transition:var(--tr);outline:none}
+.fld select option{background:#1a1a2e;color:var(--tp)}
+.fld input::placeholder{color:var(--tm)}
+.fld input:focus,.fld select:focus{border-color:var(--a1);background:rgba(124,58,237,0.08);box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
+.fld input.err,.fld select.err{border-color:var(--red);background:rgba(239,68,68,0.08);box-shadow:0 0 0 3px rgba(239,68,68,0.1)}
+
+.rm{width:36px;height:36px;border-radius:10px;border:none;background:rgba(239,68,68,0.1);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:var(--tr);margin-bottom:1px;flex-shrink:0}
+.rm:hover{background:rgba(239,68,68,0.25);transform:scale(1.1)}
+
+.acts{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+/* Grade scale reference */
+.grade-ref{margin-top:20px;padding:16px;background:rgba(255,255,255,0.02);border-radius:var(--rs);border:1px solid rgba(255,255,255,0.04)}
+.grade-ref h4{font-size:.75rem;color:var(--tm);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.grade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px}
+.grade-chip{display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:6px;font-size:.75rem;color:var(--ts)}
+.grade-chip b{color:var(--tp)}
+
+footer{text-align:center;margin-top:40px;padding:16px;color:var(--tm);font-size:.7rem}
+
+.toast-c{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:11px 18px;border-radius:10px;font-family:var(--f);font-size:.82rem;color:#fff;animation:toastIn .3s;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.toast.error{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+.toast.success{background:linear-gradient(135deg,#16a34a,#15803d)}
+.toast.removing{animation:toastOut .3s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}
+
+@media(max-width:640px){
+  .container{padding:20px 12px}
+  .glass{padding:18px 14px}
+  .sgpa-row{grid-template-columns:1fr 1fr;gap:8px}
+  .cgpa-row{grid-template-columns:1fr 1fr;gap:8px}
+  .sgpa-row .fld:first-child,.cgpa-row .fld:first-child{grid-column:1/-1}
+  .rm{justify-self:end}
+  .stats{grid-template-columns:1fr;gap:8px}
+  .stat{display:flex;justify-content:space-between;align-items:center;padding:10px 14px}
+  .grade-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+<div class="bg-orb orb3"></div>
+
+<div class="container">
+  <header>
+    <div class="logo-icon">🎓</div>
+    <h1>GPA Calculator</h1>
+    <p>Calculate SGPA for a semester or CGPA across all semesters</p>
+  </header>
+
+  <!-- Tab Switcher -->
+  <div class="tabs">
+    <button class="tab active" id="tabSgpa" onclick="switchTab('sgpa')">📖 SGPA Calculator</button>
+    <button class="tab" id="tabCgpa" onclick="switchTab('cgpa')">📊 CGPA Calculator</button>
+  </div>
+
+  <!-- ==================== SGPA TAB ==================== -->
+  <div class="tab-panel active" id="panelSgpa">
+    <div class="glass summary" id="sgpaSummary">
+      <div class="gpa-lbl">Semester GPA</div>
+      <div class="gpa-val" id="sgpaVal">0.00</div>
+      <div class="stats">
+        <div class="stat"><b id="sgpaTotalCr">0</b><span>Total Credits</span></div>
+        <div class="stat"><b id="sgpaWeighted">0.00</b><span>Weighted GP</span></div>
+        <div class="stat"><b id="sgpaSubjects">0</b><span>Subjects</span></div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="sec-hdr">
+        <div class="sec-title">📝 Subject Details</div>
+        <button class="btn btn-p" onclick="addSubject()">＋ Add Subject</button>
+      </div>
+      <div class="row-list" id="subjectList"></div>
+      <div class="acts">
+        <button class="btn btn-g" onclick="addSubject()">＋ Add Another</button>
+        <button class="btn btn-d" onclick="clearSgpa()">✕ Clear All</button>
+      </div>
+      <div class="grade-ref">
+        <h4>Grade Point Reference</h4>
+        <div class="grade-grid">
+          <div class="grade-chip">O <b>10</b></div>
+          <div class="grade-chip">A+ <b>9</b></div>
+          <div class="grade-chip">A <b>8</b></div>
+          <div class="grade-chip">B+ <b>7</b></div>
+          <div class="grade-chip">B <b>6</b></div>
+          <div class="grade-chip">C <b>5</b></div>
+          <div class="grade-chip">D <b>4</b></div>
+          <div class="grade-chip">F <b>0</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CGPA TAB ==================== -->
+  <div class="tab-panel" id="panelCgpa">
+    <div class="glass summary" id="cgpaSummary">
+      <div class="gpa-lbl">Cumulative GPA</div>
+      <div class="gpa-val" id="cgpaVal">0.00</div>
+      <div class="stats">
+        <div class="stat"><b id="cgpaTotalCr">0</b><span>Total Credits</span></div>
+        <div class="stat"><b id="cgpaWeighted">0.00</b><span>Weighted GP</span></div>
+        <div class="stat"><b id="cgpaSemCount">0</b><span>Semesters</span></div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="sec-hdr">
+        <div class="sec-title">📚 Semester Details</div>
+        <button class="btn btn-p" onclick="addSemester()">＋ Add Semester</button>
+      </div>
+      <div class="row-list" id="semesterList"></div>
+      <div class="acts">
+        <button class="btn btn-g" onclick="addSemester()">＋ Add Another</button>
+        <button class="btn btn-d" onclick="clearCgpa()">✕ Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Built with precision • SGPA = Σ(Credits × GP) ÷ Σ(Credits) • CGPA = Σ(Credits × SGPA) ÷ Σ(Credits)</footer>
+</div>
+
+<div class="toast-c" id="toastC"></div>
+
+<script>
+let subC=0, semC=0;
+
+// ── Tab switching ──
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');
+  document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');
+}
+
+// ── Color helper ──
+function colorGpa(el,val,hasData){
+  if(!hasData){el.style.color='rgba(240,240,255,0.35)';return}
+  el.style.color=val>=8.5?'var(--green)':val>=6.5?'var(--yellow)':'var(--red)';
+}
+
+// ══════════════════ SGPA ══════════════════
+function addSubject(){
+  subC++;
+  const id=subC, row=document.createElement('div');
+  row.className='row sgpa-row'; row.id='sub-'+id;
+  row.innerHTML=`
+    <div class="fld"><label>Subject Name</label>
+      <input type="text" placeholder="e.g. Mathematics" value="Subject ${id}" oninput="calcSgpa()"></div>
+    <div class="fld"><label>Credits</label>
+      <input type="number" id="sc-${id}" placeholder="e.g. 4" min="1" max="30" step="1" oninput="calcSgpa()"></div>
+    <div class="fld"><label>Grade</label>
+      <select id="sg-${id}" onchange="onGradeChange(${id})">
+        <option value="" disabled selected>Select</option>
+        <option value="10">O</option>
+        <option value="9">A+</option>
+        <option value="8">A</option>
+        <option value="7">B+</option>
+        <option value="6">B</option>
+        <option value="5">C</option>
+        <option value="4">D</option>
+        <option value="0">F</option>
+      </select></div>
+    <div class="fld"><label>Grade Point</label>
+      <input type="text" id="gp-${id}" class="gp-readonly" readonly placeholder="—"></div>
+    <button class="rm" onclick="removeRow('sub-${id}','sgpa')" title="Remove">✕</button>`;
+  document.getElementById('subjectList').appendChild(row);
+  row.querySelector('#sc-'+id).focus();
+  calcSgpa();
+}
+
+function onGradeChange(id){
+  const sel=document.getElementById('sg-'+id);
+  const gpInput=document.getElementById('gp-'+id);
+  gpInput.value=sel.value!==''?sel.value:'';
+  calcSgpa();
+}
+
+function calcSgpa(){
+  const rows=document.querySelectorAll('#subjectList .row');
+  let tc=0,ws=0,vc=0;
+  rows.forEach(r=>{
+    const ci=r.querySelector('input[id^="sc-"]'), gi=r.querySelector('select[id^="sg-"]');
+    const gpi=r.querySelector('input[id^="gp-"]');
+    const c=parseFloat(ci.value), g=parseFloat(gi.value);
+    ci.classList.remove('err'); gi.classList.remove('err');
+    if(ci.value&&(isNaN(c)||c<=0)) ci.classList.add('err');
+    if(gi.value===''){ gi.classList.add('err'); }
+    if(!isNaN(c)&&c>0&&gi.value!==''&&!isNaN(g)){tc+=c;ws+=c*g;vc++}
+  });
+  const sgpa=tc>0?(ws/tc):0;
+  const el=document.getElementById('sgpaVal');
+  el.textContent=sgpa.toFixed(2);
+  colorGpa(el,sgpa,tc>0);
+  document.getElementById('sgpaTotalCr').textContent=tc;
+  document.getElementById('sgpaWeighted').textContent=ws.toFixed(2);
+  document.getElementById('sgpaSubjects').textContent=vc;
+}
+
+function clearSgpa(){
+  clearList('subjectList',()=>{subC=0;calcSgpa()});
+}
+
+// ══════════════════ CGPA ══════════════════
+function addSemester(){
+  semC++;
+  const id=semC, row=document.createElement('div');
+  row.className='row cgpa-row'; row.id='sem-'+id;
+  row.innerHTML=`
+    <div class="fld"><label>Semester Name</label>
+      <input type="text" placeholder="e.g. Semester ${id}" value="Semester ${id}" oninput="calcCgpa()"></div>
+    <div class="fld"><label>Credits</label>
+      <input type="number" id="cc-${id}" placeholder="e.g. 24" min="1" max="100" step="1" oninput="calcCgpa()"></div>
+    <div class="fld"><label>SGPA</label>
+      <input type="number" id="cg-${id}" placeholder="e.g. 8.5" min="0" max="10" step="0.01" oninput="calcCgpa()"></div>
+    <button class="rm" onclick="removeRow('sem-${id}','cgpa')" title="Remove">✕</button>`;
+  document.getElementById('semesterList').appendChild(row);
+  row.querySelector('#cc-'+id).focus();
+  calcCgpa();
+}
+
+function calcCgpa(){
+  const rows=document.querySelectorAll('#semesterList .row');
+  let tc=0,ws=0,vc=0;
+  rows.forEach(r=>{
+    const ci=r.querySelector('input[id^="cc-"]'), gi=r.querySelector('input[id^="cg-"]');
+    const c=parseFloat(ci.value), g=parseFloat(gi.value);
+    ci.classList.remove('err'); gi.classList.remove('err');
+    if(ci.value&&(isNaN(c)||c<=0)) ci.classList.add('err');
+    if(gi.value&&(isNaN(g)||g<0||g>10)) gi.classList.add('err');
+    if(!isNaN(c)&&c>0&&!isNaN(g)&&g>=0&&g<=10){tc+=c;ws+=c*g;vc++}
+  });
+  const cgpa=tc>0?(ws/tc):0;
+  const el=document.getElementById('cgpaVal');
+  el.textContent=cgpa.toFixed(2);
+  colorGpa(el,cgpa,tc>0);
+  document.getElementById('cgpaTotalCr').textContent=tc;
+  document.getElementById('cgpaWeighted').textContent=ws.toFixed(2);
+  document.getElementById('cgpaSemCount').textContent=vc;
+}
+
+function clearCgpa(){
+  clearList('semesterList',()=>{semC=0;calcCgpa()});
+}
+
+// ── Shared utilities ──
+function removeRow(id,type){
+  const row=document.getElementById(id);
+  if(!row) return;
+  row.classList.add('removing');
+  setTimeout(()=>{row.remove();type==='sgpa'?calcSgpa():calcCgpa()},350);
+}
+
+function clearList(listId,cb){
+  const rows=document.querySelectorAll('#'+listId+' .row');
+  if(!rows.length) return;
+  rows.forEach((r,i)=>setTimeout(()=>r.classList.add('removing'),i*50));
+  setTimeout(()=>{document.getElementById(listId).innerHTML='';cb();showToast('Cleared successfully','success')},rows.length*50+350);
+}
+
+function showToast(msg,type='error'){
+  const t=document.createElement('div');
+  t.className='toast '+type; t.textContent=msg;
+  document.getElementById('toastC').appendChild(t);
+  setTimeout(()=>t.classList.add('removing'),2500);
+  setTimeout(()=>t.remove(),2800);
+}
+
+// ── Init defaults ──
+addSubject(); addSubject(); addSubject();
+addSemester(); addSemester();
+</script>
+</body>
+</html>
